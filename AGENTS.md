@@ -658,6 +658,7 @@ Repartition automatically merges all chunks (both resolutions) from `chunks/` in
 - **Do not modify `cng_datasets/` source code.** File an issue instead (see Hard Boundary above).
 - **Do not request more than 50Gi ephemeral-storage per pod.** The `biodiversity` namespace caps it at 50Gi. Generated YAMLs default to 250Gi — always reduce to 50Gi and add `limits.ephemeral-storage: 50Gi` before applying.
 - **Do not use multiple .zip URLs with `cng-datasets workflow`.** Create a preprocessing job that downloads, unzips, and converts instead (see Step 1).
+- **Do not commit directly to local `main`.** Always create a feature branch, push it, and open a PR. Branch protection enforces this on the remote, but committing to local `main` leads to divergence and painful merge conflicts when pulling. Keep local `main` clean — only update it with `git pull`.
 
 ## Reference: Complete PAD-US Example
 
@@ -812,3 +813,5 @@ Each submission is a JSON object with fields: `app` (which form it came from, e.
 3. If the request came from a specific app form (e.g. `"app": "tpl"`), tag the issue accordingly
 
 The form deployment lives in `dataset-requests/` in this repo. See `dataset-requests/README.md` for how to add new app routes or redeploy.
+
+**Architecture note:** The data-requests platform is intentionally kept in this repo (not split out or per-partner). Each "app" is just a config dict entry (~20 lines) — no separate infra or repos per partner. All submissions land in one S3 bucket with an `app` field for filtering. This keeps triage simple and avoids partners needing to run their own k8s deployments for a feedback form. Only reconsider if a partner needs fundamentally different fields, auth, or branding.
